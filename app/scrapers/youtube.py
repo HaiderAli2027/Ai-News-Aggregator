@@ -1,11 +1,17 @@
 from datetime import datetime, timedelta, timezone
 from typing import List, Optional
+import logging
 import os
+import random
+import time
+
 import feedparser
 from pydantic import BaseModel
 from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api._errors import TranscriptsDisabled, NoTranscriptFound
 from youtube_transcript_api.proxies import WebshareProxyConfig
+
+logger = logging.getLogger(__name__)
 
 
 class Transcript(BaseModel):
@@ -35,6 +41,19 @@ class YouTubeScraper:
         
         self.transcript_api = YouTubeTranscriptApi(proxy_config=proxy_config)
 
+    def _random_pause(self, reason: str) -> None:
+        min_delay = float(os.getenv("YOUTUBE_DELAY_MIN", "1.0"))
+        max_delay = float(os.getenv("YOUTUBE_DELAY_MAX", "3.0"))
+
+        if max_delay <= 0:
+            return
+
+        low = min(min_delay, max_delay)
+        high = max(min_delay, max_delay)
+        delay = random.uniform(low, high)
+        logger.debug("Pausing %.1fs before %s", delay, reason)
+        time.sleep(delay)
+
     def _get_rss_url(self, channel_id: str) -> str:
         return f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}"
 
@@ -48,6 +67,7 @@ class YouTubeScraper:
         return video_url
 
     def get_transcript(self, video_id: str) -> Optional[Transcript]:
+        self._random_pause(f"transcript fetch for {video_id}")
         try:
             transcript = self.transcript_api.fetch(video_id)
             text = " ".join([snippet.text for snippet in transcript.snippets])
@@ -58,6 +78,7 @@ class YouTubeScraper:
             return None
 
     def get_latest_videos(self, channel_id: str, hours: int = 24) -> list[ChannelVideo]:
+        self._random_pause(f"RSS fetch for channel {channel_id}")
         feed = feedparser.parse(self._get_rss_url(channel_id))
         if not feed.entries:
             return []
