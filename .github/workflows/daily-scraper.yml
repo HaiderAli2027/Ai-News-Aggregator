@@ -49,10 +49,11 @@ jobs:
           YOUTUBE_DELAY_MIN: "2"
           YOUTUBE_DELAY_MAX: "5"
         run: |
-          python main.py 24 10 2>&1 | tee pipeline_output.txt
+          set -o pipefail
+          python main.py 168 10 2>&1 | tee pipeline_output.txt
 
       - name: Upload logs on failure
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: pipeline-logs
