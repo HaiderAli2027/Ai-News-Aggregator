@@ -232,17 +232,38 @@ class Repository:
         digests = self.session.query(Digest).filter(
             Digest.created_at >= cutoff_time
         ).order_by(Digest.created_at.desc()).all()
-        
-        return [
-            {
-                "id": d.id,
-                "article_type": d.article_type,
-                "article_id": d.article_id,
-                "url": d.url,
-                "title": d.title,
-                "summary": d.summary,
-                "created_at": d.created_at
-            }
-            for d in digests
-        ]
+
+        return [self._digest_to_dict(d) for d in digests]
+
+    def get_unsent_digests(self, limit: Optional[int] = None) -> List[Dict[str, Any]]:
+        query = self.session.query(Digest).filter(
+            Digest.emailed_at.is_(None)
+        ).order_by(Digest.created_at.desc())
+        if limit:
+            query = query.limit(limit)
+        return [self._digest_to_dict(d) for d in query.all()]
+
+    def mark_digests_emailed(self, digest_ids: List[str]) -> int:
+        if not digest_ids:
+            return 0
+        now = datetime.now(timezone.utc)
+        updated = (
+            self.session.query(Digest)
+            .filter(Digest.id.in_(digest_ids))
+            .update({Digest.emailed_at: now}, synchronize_session=False)
+        )
+        self.session.commit()
+        return updated
+
+    def _digest_to_dict(self, d: Digest) -> Dict[str, Any]:
+        return {
+            "id": d.id,
+            "article_type": d.article_type,
+            "article_id": d.article_id,
+            "url": d.url,
+            "title": d.title,
+            "summary": d.summary,
+            "created_at": d.created_at,
+            "emailed_at": d.emailed_at,
+        }
 

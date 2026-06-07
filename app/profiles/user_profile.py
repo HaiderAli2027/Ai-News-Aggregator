@@ -1,20 +1,25 @@
 USER_PROFILE = {
     "name": "Haider Ali",
     "title": "Aspiring AI Engineer & Python Developer",
-    "background": "Software Engineering student building strong fundamentals in CS, Python, and AI engineering. Focused on learning practical, production-ready AI skills and staying updated with the latest tools, frameworks, and real-world applications in the AI space.",
+    "background": (
+        "Software Engineering student building strong fundamentals in CS, Python, and AI engineering. "
+        "Focused on learning practical, production-ready skills — not industry press releases."
+    ),
     "interests": [
         "Python programming and software engineering best practices",
         "Computer Science fundamentals (DSA, OOP, system design)",
-        "Large Language Models (LLMs) and their practical applications",
-        "AI agent architectures and multi-agent frameworks",
+        "Large Language Models (LLMs) and how they work under the hood",
+        "AI agent architectures, multi-agent frameworks, and agentic workflows",
         "Retrieval-Augmented Generation (RAG) systems",
+        "Generative AI engineering patterns and prompt design",
+        "ML engineering basics: training, evaluation, deployment",
+        "MLOps and DevOps concepts for AI projects",
         "Databases and backend integration (PostgreSQL, APIs)",
         "Practical AI tools and developer productivity (Groq, OpenAI, LangChain)",
+        "YouTube tutorials and walkthroughs from engineering channels",
         "Real-world AI project building and implementation guides",
-        "Multimodal AI and vision-language models",
-        "AI infrastructure, deployment, and MLOps basics",
-        "New AI tools, libraries, and framework releases",
-        "Technical tutorials beginner-to-advanced level"
+        "New AI tools, libraries, and framework releases with hands-on usage",
+        "Technical tutorials at beginner-to-intermediate level",
     ],
     "preferences": {
         "prefer_practical_projects": True,
@@ -23,8 +28,13 @@ USER_PROFILE = {
         "prefer_hands_on_tutorials": True,
         "prefer_latest_tools_and_updates": True,
         "prefer_production_focus": True,
+        "prefer_youtube_tutorials": True,
+        "prefer_concept_explanations": True,
         "avoid_marketing_hype": True,
+        "avoid_corporate_announcements": True,
+        "avoid_product_launch_pr": True,
         "avoid_overly_academic_papers": True,
+        "learning_goal": "Clear concepts and hands-on engineering — not industry news",
     },
-    "expertise_level": "Beginner to Intermediate (actively growing)"
+    "expertise_level": "Beginner to Intermediate (actively growing)",
 }

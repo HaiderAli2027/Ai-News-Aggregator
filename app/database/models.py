@@ -54,4 +54,5 @@ class Digest(Base):
     title = Column(String, nullable=False)
     summary = Column(Text, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+    emailed_at = Column(DateTime, nullable=True)
 

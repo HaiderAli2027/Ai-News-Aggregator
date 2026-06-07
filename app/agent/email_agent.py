@@ -6,12 +6,30 @@ from groq import Groq
 from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 
+EMAIL_PROMPT = """You are a friendly mentor writing the intro for a daily AI learning digest email.
+
+The reader is a beginner-to-intermediate engineer who wants:
+- Clear CS and AI engineering concepts
+- Practical tutorials and tool discoveries
+- NOT corporate product launch news
+
+Write a warm, human introduction that:
+- Greets the user by name with today's date
+- Previews what they will learn today (concepts, tools, tutorials)
+- Sounds like a helpful senior engineer, not a marketing newsletter
+- Stays concise: 2-3 sentences for the introduction body
+
+Avoid corporate tone and hype. Focus on learning outcomes.
+
+IMPORTANT: Respond ONLY with a valid JSON object in this exact format (no markdown, no extra text):
+{"greeting": "your greeting here", "introduction": "your introduction here"}"""
+
 load_dotenv()
 
 
 class EmailIntroduction(BaseModel):
     greeting: str = Field(description="Personalized greeting with user's name and date")
-    introduction: str = Field(description="2-3 sentence overview of what's in the top 10 ranked articles")
+    introduction: str = Field(description="2-3 sentence overview of today's learning picks")
 
 
 class RankedArticleDetail(BaseModel):
@@ -32,37 +50,36 @@ class EmailDigestResponse(BaseModel):
     top_n: int
 
     def to_markdown(self) -> str:
-        markdown = f"{self.introduction.greeting}\n\n"
-        markdown += f"{self.introduction.introduction}\n\n"
-        markdown += "---\n\n"
+        lines = [
+            self.introduction.greeting,
+            "",
+            self.introduction.introduction,
+            "",
+            "---",
+            "",
+        ]
 
         for article in self.articles:
-            markdown += f"## {article.title}\n\n"
-            markdown += f"{article.summary}\n\n"
-            markdown += f"[Read more →]({article.url})\n\n"
-            markdown += "---\n\n"
+            if not article.title or not article.url:
+                continue
+            lines.append(f"## #{article.rank} {article.title}")
+            lines.append("")
+            if article.reasoning:
+                lines.append(f"*Why this is for you:* {article.reasoning}")
+                lines.append("")
+            lines.append(article.summary)
+            lines.append("")
+            lines.append(f"[Read more]({article.url})")
+            lines.append("")
+            lines.append("---")
+            lines.append("")
 
-        return markdown
+        return "\n".join(lines)
 
 
 class EmailDigest(BaseModel):
     introduction: EmailIntroduction
-    ranked_articles: List[dict] = Field(description="Top 10 ranked articles with their details")
-
-
-EMAIL_PROMPT = """You are an expert email writer specializing in creating engaging, personalized AI news digests.
-
-Your role is to write a warm, professional introduction for a daily AI news digest email that:
-- Greets the user by name
-- Includes the current date
-- Provides a brief, engaging overview of what's coming in the top 10 ranked articles
-- Highlights the most interesting or important themes
-- Sets expectations for the content ahead
-
-Keep it concise (2-3 sentences for the introduction), friendly, and professional.
-
-IMPORTANT: Respond ONLY with a valid JSON object in this exact format (no markdown, no extra text):
-{"greeting": "your greeting here", "introduction": "your introduction here"}"""
+    ranked_articles: List[dict] = Field(description="Top ranked articles with their details")
 
 
 class EmailAgent:
@@ -72,12 +89,12 @@ class EmailAgent:
         self.user_profile = user_profile
 
     def generate_introduction(self, ranked_articles: List) -> EmailIntroduction:
-        current_date = datetime.now().strftime('%B %d, %Y')
+        current_date = datetime.now().strftime("%B %d, %Y")
 
         if not ranked_articles:
             return EmailIntroduction(
-                greeting=f"Hey {self.user_profile['name']}, here is your daily digest of AI news for {current_date}.",
-                introduction="No articles were ranked today."
+                greeting=f"Hey {self.user_profile['name']}, here is your daily learning digest for {current_date}.",
+                introduction="No new learning content today.",
             )
 
         top_articles = ranked_articles[:10]
@@ -87,12 +104,12 @@ class EmailAgent:
             for idx, article in enumerate(top_articles)
         ])
 
-        user_prompt = f"""Create an email introduction for {self.user_profile['name']} for {current_date}.
+        user_prompt = f"""Create a learning digest email introduction for {self.user_profile['name']} for {current_date}.
 
-Top 10 ranked articles:
+Today's picks (tutorials, concepts, tools):
 {article_summaries}
 
-Generate a greeting and introduction that previews these articles."""
+The reader is a beginner-to-intermediate engineer learning AI engineering concepts — not reading corporate news."""
 
         try:
             response = self.client.chat.completions.create(
@@ -101,7 +118,7 @@ Generate a greeting and introduction that previews these articles."""
                 response_format={"type": "json_object"},
                 messages=[
                     {"role": "system", "content": EMAIL_PROMPT},
-                    {"role": "user",   "content": user_prompt},
+                    {"role": "user", "content": user_prompt},
                 ],
             )
 
@@ -109,9 +126,10 @@ Generate a greeting and introduction that previews these articles."""
             data = json.loads(raw)
             intro = EmailIntroduction(**data)
 
-            # Ensure greeting starts correctly
             if not intro.greeting.startswith(f"Hey {self.user_profile['name']}"):
-                intro.greeting = f"Hey {self.user_profile['name']}, here is your daily digest of AI news for {current_date}."
+                intro.greeting = (
+                    f"Hey {self.user_profile['name']}, here is your daily learning digest for {current_date}."
+                )
 
             return intro
 
@@ -123,28 +141,24 @@ Generate a greeting and introduction that previews these articles."""
             return self._fallback_introduction(current_date)
 
     def _fallback_introduction(self, current_date: str) -> EmailIntroduction:
-        """Returns a default introduction if the API call fails."""
         return EmailIntroduction(
-            greeting=f"Hey {self.user_profile['name']}, here is your daily digest of AI news for {current_date}.",
-            introduction="Here are the top 10 AI news articles ranked by relevance to your interests."
+            greeting=f"Hey {self.user_profile['name']}, here is your daily learning digest for {current_date}.",
+            introduction="Here are today's top picks to help you learn AI engineering concepts and tools.",
         )
 
     def create_email_digest(self, ranked_articles: List[dict], limit: int = 10) -> EmailDigest:
         top_articles = ranked_articles[:limit]
         introduction = self.generate_introduction(top_articles)
+        return EmailDigest(introduction=introduction, ranked_articles=top_articles)
 
-        return EmailDigest(
-            introduction=introduction,
-            ranked_articles=top_articles
-        )
-
-    def create_email_digest_response(self, ranked_articles: List[RankedArticleDetail], total_ranked: int, limit: int = 10) -> EmailDigestResponse:
-        top_articles = ranked_articles[:limit]
+    def create_email_digest_response(
+        self, ranked_articles: List[RankedArticleDetail], total_ranked: int, limit: int = 10
+    ) -> EmailDigestResponse:
+        top_articles = [a for a in ranked_articles[:limit] if a.title and a.url]
         introduction = self.generate_introduction(top_articles)
-
         return EmailDigestResponse(
             introduction=introduction,
             articles=top_articles,
             total_ranked=total_ranked,
-            top_n=limit
+            top_n=limit,
         )

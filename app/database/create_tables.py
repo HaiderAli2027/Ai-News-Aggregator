@@ -18,6 +18,9 @@ if __name__ == "__main__":
         print("Tables created successfully:")
         for table in Base.metadata.sorted_tables:
             print(f"  - {table.name}")
+        print("\nNote: Existing Supabase databases need the emailed_at column.")
+        print("If missing, run in Supabase SQL Editor:")
+        print("  ALTER TABLE digests ADD COLUMN IF NOT EXISTS emailed_at TIMESTAMPTZ;")
     except OperationalError as e:
         print("Failed to connect to the database.")
         print(f"Error: {e.orig}")

@@ -2,8 +2,8 @@ name: Daily AI News Scraper
 
 on:
   schedule:
-    # Runs daily at 8:00 AM UTC (1:00 PM PKT)
-    - cron: "0 8 * * *"
+    # Runs daily at 8:00 AM PKT (UTC+5)
+    - cron: "0 3 * * *"
   workflow_dispatch:
 
 jobs:
@@ -50,7 +50,7 @@ jobs:
           YOUTUBE_DELAY_MAX: "5"
         run: |
           set -o pipefail
-          python main.py 168 10 2>&1 | tee pipeline_output.txt
+          python main.py 72 10 2>&1 | tee pipeline_output.txt
 
       - name: Upload logs on failure
         if: always()

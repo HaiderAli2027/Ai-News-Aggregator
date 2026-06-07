@@ -47,7 +47,7 @@ def process_digests(limit: Optional[int] = None) -> dict:
                     article_id=article_id,
                     url=article["url"],
                     title=digest_result.title,
-                    summary=digest_result.summary,
+                    summary=agent.format_summary(digest_result),
                     published_at=article.get("published_at")
                 )
                 processed += 1

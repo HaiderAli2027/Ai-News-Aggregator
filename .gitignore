@@ -4,9 +4,42 @@ __pycache__/
 build/
 dist/
 wheels/
-*.egg-info
+*.egg-info/
+.eggs/
+*.egg
 
 # Virtual environments
 .venv
 .env
 example.env
+
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Local testing & cache
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Environment
+.python-version
+*.log
+
+# Database
+*.db
+*.sqlite
+
+# OS
+Thumbs.db
+
+# Development
+.env.local
+.env.*.local
