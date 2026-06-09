@@ -65,7 +65,7 @@ Uses **Groq LLaMA 70B** model with JSON response format:
 - **Background**: Software Engineering student, Python + AI fundamentals focus
 - **Interests** (14 key areas):
   - Python & software engineering best practices
-  - CS fundamentals: DSA, OOP, system design
+  - CS fundamentals: DSA, OOP, system design, software design and architecture
   - LLMs: architecture, training, inference
   - AI agents: multi-agent systems, agentic workflows
   - RAG systems & vector embeddings
