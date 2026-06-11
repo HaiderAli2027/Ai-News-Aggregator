@@ -209,18 +209,6 @@ Email Layer (Output)
 - **Exit Codes**: Success/failure signaling for CI/CD
 - **Logging**: Structured logs for debugging & monitoring
 
----
-
-## Future Enhancements
-
-1. **Multi-language support**: Translate summaries to user preferences
-2. **Topic-based filtering**: Let user choose topics (agents, MLOps, DSA, etc.)
-3. **Historical analytics**: Track what user reads, improve rankings
-4. **Fallback sources**: Add more RSS feeds if coverage is low
-5. **Batch mode**: Send weekly digest option
-6. **Custom digest schedule**: User-defined frequency
-7. **Web dashboard**: View past digests, unsubscribe topics
-8. **Integration with learning platforms**: Link to Coursera, Udemy courses
 
 ---
 
