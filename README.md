@@ -53,7 +53,7 @@ ai-news-aggregator/
 - Python 3.12 or higher
 - PostgreSQL 17
 - Docker Desktop (optional, for containerized setup)
-- API keys: Groq, OpenAI (optional)
+- API keys: Groq
 
 ## Installation
 
@@ -70,14 +70,14 @@ Using uv (recommended):
 
 ```bash
 uv venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+.venv\Scripts\activate
 ```
 
 Or using Python venv:
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+.venv\Scripts\activate
 ```
 
 ### 3. Install Dependencies
