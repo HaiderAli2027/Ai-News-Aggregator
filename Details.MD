@@ -225,7 +225,3 @@ python main.py 72 5
 # Configured in .github/workflows/daily-scraper.yml
 ```
 
----
-
-**Last Updated:** June 7, 2026  
-**User Profile:** Haider Ali (Aspiring AI Engineer & Python Developer)
