@@ -209,19 +209,3 @@ Email Layer (Output)
 - **Exit Codes**: Success/failure signaling for CI/CD
 - **Logging**: Structured logs for debugging & monitoring
 
-
----
-
-## How to Run
-
-```bash
-# Local test (24 hours, 10 articles)
-python main.py
-
-# Custom window (72 hours, 5 articles)
-python main.py 72 5
-
-# Production (via GitHub Actions daily at 3 AM UTC)
-# Configured in .github/workflows/daily-scraper.yml
-```
-
